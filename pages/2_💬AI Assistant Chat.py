@@ -8,13 +8,11 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import json
 
 
-from llama_index import (
-    GPTVectorStoreIndex,
+from llama_index.embeddings import GPTVectorStoreIndex,
     SimpleDirectoryReader,
     LLMPredictor,
     ServiceContext,
     LangchainEmbedding
-)
 
 
 st.title("💬 Chat with My AI Assistant")
