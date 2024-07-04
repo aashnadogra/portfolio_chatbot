@@ -1,7 +1,7 @@
 import streamlit as st
 from utils.constants import *
 import torch
-from llama_index import GPTVectorStoreIndex, SimpleDirectoryReader, LLMPredictor
+from llama_index import GPTVectorStoreIndex, SimpleDirectoryReader, LLMPredictor, ServiceContext, LangchainEmbedding
 from langchain.embeddings import HuggingFaceInstructEmbeddings
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import json
