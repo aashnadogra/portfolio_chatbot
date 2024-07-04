@@ -2,7 +2,7 @@ import streamlit as st
 from utils.constants import *
 import torch
 
-from langchain import HuggingFaceInstructEmbeddings
+from langchain_community.embeddings import HuggingFaceInstructEmbeddings
 
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
