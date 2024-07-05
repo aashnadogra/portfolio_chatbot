@@ -2,19 +2,10 @@ import streamlit as st
 from utils.constants import *
 import torch
 from langchain_community.embeddings import HuggingFaceInstructEmbeddings
-
-
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import json
-
-
-from llama_index.embeddings import GPTVectorStoreIndex
-from llama_index.embeddings import SimpleDirectoryReader
-from llama_index.embeddings import LLMPredictor
-from llama_index.embeddings import ServiceContext
+from llama_index import GPTVectorStoreIndex, SimpleDirectoryReader, LLMPredictor, ServiceContext
 from llama_index.embeddings import LangchainEmbedding
-
-
 
 st.title("💬 Chat with My AI Assistant")
 
@@ -93,7 +84,7 @@ with st.spinner("Initiating the AI assistant. Please hold..."):
             llm=model
     )
                                     
-    # Hugging Face models can be supported by using LangchainEmbedding to convert text to embedding vector	
+    # Hugging Face models can be supported by using LangchainEmbedding to convert text to embedding vector    
     embed_model = LangchainEmbedding(embeddings)
     
     # ServiceContext: to encapsulate the resources used to create indexes and run queries    
@@ -161,4 +152,3 @@ if st.session_state['disabled'] == False:
         if n == 0:
             for q in questions:
                 button_ques = buttons.button(label=q, on_click=send_button_ques, args=[q], disabled=st.session_state.disabled)
-
