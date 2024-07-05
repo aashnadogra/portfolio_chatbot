@@ -6,6 +6,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig
 import json
 from llama_index import GPTVectorStoreIndex, SimpleDirectoryReader, LLMPredictor, ServiceContext
 from llama_index.embeddings import LangchainEmbedding
+import time
 
 st.title("💬 Chat with My AI Assistant")
 
@@ -56,19 +57,26 @@ with st.sidebar:
 
     st.caption(f"© Made by {full_name} 2023. All rights reserved.")
 
+def load_model_and_tokenizer(model_name, retries=3, delay=5):
+    for attempt in range(retries):
+        try:
+            tokenizer = AutoTokenizer.from_pretrained(model_name)
+            model = AutoModelForCausalLM.from_pretrained(model_name).to(DEVICE)
+            return tokenizer, model
+        except Exception as e:
+            st.error(f"Attempt {attempt + 1} failed: {e}")
+            time.sleep(delay)
+    st.error("Failed to load model or tokenizer after multiple attempts.")
+    st.stop()
+
 with st.spinner("Initiating the AI assistant. Please hold..."):
     # Check for GPU availability and set the appropriate device for computation.
     DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 
     model_name = "gpt2"  # Replace with your desired model
 
-    try:
-        # Attempt to load the tokenizer and model
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForCausalLM.from_pretrained(model_name).to(DEVICE)
-    except EnvironmentError as e:
-        st.error(f"Failed to load model or tokenizer: {e}")
-        st.stop()
+    # Load the tokenizer and model with retries
+    tokenizer, model = load_model_and_tokenizer(model_name)
 
     # Function to generate text using the local model
     def generate_text(prompt, max_length=50):
