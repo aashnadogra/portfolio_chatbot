@@ -62,8 +62,8 @@ with st.spinner("Initiating the AI assistant. Please hold..."):
     
     # Load your local model and tokenizer
     model_name = "gpt2"  # Replace with your desired model
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name).to(DEVICE)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True, local_files_only=True)
+    model = AutoModelForCausalLM.from_pretrained(model_name, use_fast=True, local_files_only=True).to(DEVICE)
     
     # Function to generate text using the local model
     def generate_text(prompt, max_length=50):
