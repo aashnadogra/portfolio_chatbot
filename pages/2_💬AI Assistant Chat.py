@@ -4,7 +4,7 @@
 # from utils.constants import *
 # import torch
 # from langchain_community.embeddings import HuggingFaceInstructEmbeddings
-# from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig
+ from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig
 # import json
 # from llama_index import GPTVectorStoreIndex, SimpleDirectoryReader, LLMPredictor, ServiceContext
 # from llama_index.embeddings import LangchainEmbedding
