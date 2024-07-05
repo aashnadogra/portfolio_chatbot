@@ -2,7 +2,7 @@ import streamlit as st
 from utils.constants import *
 import torch
 from langchain_community.embeddings import HuggingFaceInstructEmbeddings
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig
 import json
 from llama_index import GPTVectorStoreIndex, SimpleDirectoryReader, LLMPredictor, ServiceContext
 from llama_index.embeddings import LangchainEmbedding
@@ -12,7 +12,7 @@ st.title("💬 Chat with My AI Assistant")
 def local_css(file_name):
     with open(file_name) as f:
         st.markdown('<style>{}</style>'.format(f.read()), unsafe_allow_html=True)
-        
+
 local_css("style/styles_chat.css")
 
 # Get the variables from constants.py
@@ -44,7 +44,7 @@ with st.sidebar:
             - What are {pronoun} achievements?
             """
         )
-    
+
     messages = st.session_state.messages
     if messages is not None:
         st.download_button(
@@ -59,18 +59,23 @@ with st.sidebar:
 with st.spinner("Initiating the AI assistant. Please hold..."):
     # Check for GPU availability and set the appropriate device for computation.
     DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
-    
-    # Load your local model and tokenizer
+
     model_name = "gpt2"  # Replace with your desired model
-    tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True, local_files_only=True)
-    model = AutoModelForCausalLM.from_pretrained(model_name, use_fast=True, local_files_only=True).to(DEVICE)
-    
+
+    try:
+        # Attempt to load the tokenizer and model
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForCausalLM.from_pretrained(model_name).to(DEVICE)
+    except EnvironmentError as e:
+        st.error(f"Failed to load model or tokenizer: {e}")
+        st.stop()
+
     # Function to generate text using the local model
     def generate_text(prompt, max_length=50):
         inputs = tokenizer(prompt, return_tensors="pt").to(DEVICE)
         outputs = model.generate(inputs.input_ids, max_length=max_length)
         return tokenizer.decode(outputs[0], skip_special_tokens=True)
-    
+
     # Initialize embeddings using a pre-trained model to represent the text data.
     embeddings = HuggingFaceInstructEmbeddings(
         model_name="sentence-transformers/all-MiniLM-L6-v2", model_kwargs={"device": DEVICE}
@@ -78,20 +83,18 @@ with st.spinner("Initiating the AI assistant. Please hold..."):
 
     # Load the file
     documents = SimpleDirectoryReader(input_files=["bio.txt"]).load_data()
-    
+
     # LLMPredictor: to generate the text response (Completion)
-    llm_predictor = LLMPredictor(
-            llm=model
-    )
-                                    
-    # Hugging Face models can be supported by using LangchainEmbedding to convert text to embedding vector    
+    llm_predictor = LLMPredictor(llm=model)
+
+    # Hugging Face models can be supported by using LangchainEmbedding to convert text to embedding vector
     embed_model = LangchainEmbedding(embeddings)
-    
-    # ServiceContext: to encapsulate the resources used to create indexes and run queries    
+
+    # ServiceContext: to encapsulate the resources used to create indexes and run queries
     service_context = ServiceContext.from_defaults(
-            llm_predictor=llm_predictor, 
-            embed_model=embed_model
-    )      
+        llm_predictor=llm_predictor,
+        embed_model=embed_model
+    )
     # Build index
     index = GPTVectorStoreIndex.from_documents(documents, service_context=service_context)
 
