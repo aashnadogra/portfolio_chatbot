@@ -1,15 +1,4 @@
-# 2_💬AI Assistant Chat.py
-
-# import streamlit as st
-# from utils.constants import *
-# import torch
-# from langchain_community.embeddings import HuggingFaceInstructEmbeddings
-#from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig
-# import json
-# from llama_index import GPTVectorStoreIndex, SimpleDirectoryReader, LLMPredictor, ServiceContext
-# from llama_index.embeddings import LangchainEmbedding
-# from utils.model_utils import load_model_and_tokenizer  # Import the function
-# import time
+# File: pages/2_💬AI Assistant Chat.py
 
 import streamlit as st
 from utils.model_loader import load_model_and_tokenizer
@@ -70,18 +59,6 @@ with st.sidebar:
 
     st.caption(f"© Made by {full_name} 2023. All rights reserved.")
 
-def load_model_and_tokenizer(model_name, retries=3, delay=5):
-    for attempt in range(retries):
-        try:
-            tokenizer = AutoTokenizer.from_pretrained(model_name)
-            model = AutoModelForCausalLM.from_pretrained(model_name).to(DEVICE)
-            return tokenizer, model
-        except Exception as e:
-            st.error(f"Attempt {attempt + 1} failed: {e}")
-            time.sleep(delay)
-    st.error("Failed to load model or tokenizer after multiple attempts.")
-    st.stop()
-
 with st.spinner("Initiating the AI assistant. Please hold..."):
     # Check for GPU availability and set the appropriate device for computation.
     DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -89,7 +66,7 @@ with st.spinner("Initiating the AI assistant. Please hold..."):
     model_name = "gpt2"  # Replace with your desired model
 
     # Load the tokenizer and model with retries
-    tokenizer, model = load_model_and_tokenizer(model_name)
+    tokenizer, model = load_model_and_tokenizer(model_name, DEVICE)
 
     # Function to generate text using the local model
     def generate_text(prompt, max_length=50):
@@ -176,4 +153,3 @@ if st.session_state['disabled'] == False:
         if n == 0:
             for q in questions:
                 button_ques = buttons.button(label=q, on_click=send_button_ques, args=[q], disabled=st.session_state.disabled)
-
