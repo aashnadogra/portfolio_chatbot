@@ -1,11 +1,24 @@
+# 2_💬AI Assistant Chat.py
+
+# import streamlit as st
+# from utils.constants import *
+# import torch
+# from langchain_community.embeddings import HuggingFaceInstructEmbeddings
+# from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig
+# import json
+# from llama_index import GPTVectorStoreIndex, SimpleDirectoryReader, LLMPredictor, ServiceContext
+# from llama_index.embeddings import LangchainEmbedding
+# from utils.model_utils import load_model_and_tokenizer  # Import the function
+# import time
+
 import streamlit as st
+from utils.model_loader import load_model_and_tokenizer
 from utils.constants import *
 import torch
 from langchain_community.embeddings import HuggingFaceInstructEmbeddings
-from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig
-import json
 from llama_index import GPTVectorStoreIndex, SimpleDirectoryReader, LLMPredictor, ServiceContext
 from llama_index.embeddings import LangchainEmbedding
+import json
 import time
 
 st.title("💬 Chat with My AI Assistant")
@@ -163,3 +176,4 @@ if st.session_state['disabled'] == False:
         if n == 0:
             for q in questions:
                 button_ques = buttons.button(label=q, on_click=send_button_ques, args=[q], disabled=st.session_state.disabled)
+
