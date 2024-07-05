@@ -1,12 +1,13 @@
 import time
 import streamlit as st
 from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
 
-def load_model_and_tokenizer(model_name, retries=3, delay=5):
+def load_model_and_tokenizer(model_name, device, retries=3, delay=5):
     for attempt in range(retries):
         try:
             tokenizer = AutoTokenizer.from_pretrained(model_name)
-            model = AutoModelForCausalLM.from_pretrained(model_name).to(DEVICE)
+            model = AutoModelForCausalLM.from_pretrained(model_name).to(device)
             return tokenizer, model
         except Exception as e:
             st.error(f"Attempt {attempt + 1} failed: {e}")
