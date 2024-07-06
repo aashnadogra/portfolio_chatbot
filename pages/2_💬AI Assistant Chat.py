@@ -1,7 +1,7 @@
 import streamlit as st
 from utils.constants import info
 import torch
-from utils.load_model import load_model_and_tokenizer
+from utils.model_loader import load_model_and_tokenizer
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import json
 
