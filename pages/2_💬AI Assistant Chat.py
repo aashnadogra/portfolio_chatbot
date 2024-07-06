@@ -1,7 +1,7 @@
 import streamlit as st
 from utils.constants import *
 import torch
-from utils.load_model import load_model_and_tokenizer
+from utils.model_loader import load_model_and_tokenizer
 from langchain_community.embeddings import HuggingFaceInstructEmbeddings
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
