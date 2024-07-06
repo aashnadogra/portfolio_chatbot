@@ -1,7 +1,8 @@
+# File: utils/model_loader.py
+
 import time
 import streamlit as st
 from transformers import AutoModelForCausalLM, AutoTokenizer
-import torch
 
 def load_model_and_tokenizer(model_name, device, retries=3, delay=5):
     for attempt in range(retries):
