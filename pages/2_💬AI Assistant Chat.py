@@ -3,9 +3,8 @@ from utils.constants import *
 import torch
 from utils.model_loader import load_model_and_tokenizer
 from langchain_community.embeddings import HuggingFaceInstructEmbeddings
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import json
 from llama_index import GPTVectorStoreIndex, SimpleDirectoryReader, LLMPredictor, ServiceContext
+import json
 
 st.title("💬 Chat with My AI Assistant")
 
