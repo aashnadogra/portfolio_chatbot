@@ -1,13 +1,11 @@
-# File: pages/2_💬AI Assistant Chat.py
-
 import streamlit as st
-from utils.model_loader import load_model_and_tokenizer
 from utils.constants import *
 import torch
+from utils.load_model import load_model_and_tokenizer
 from langchain_community.embeddings import HuggingFaceInstructEmbeddings
-from llama_index import GPTVectorStoreIndex, SimpleDirectoryReader, LLMPredictor, ServiceContext
-from llama_index.embeddings import LangchainEmbedding
+from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
+from llama_index import GPTVectorStoreIndex, SimpleDirectoryReader, LLMPredictor, ServiceContext
 
 st.title("💬 Chat with My AI Assistant")
 
@@ -65,11 +63,7 @@ with st.spinner("Initiating the AI assistant. Please hold..."):
     model_name = "gpt2"  # Replace with your desired model
 
     # Load the tokenizer and model with retries
-    try:
-        tokenizer, model = load_model_and_tokenizer(model_name, DEVICE)
-    except Exception as e:
-        st.error(f"Failed to load model and tokenizer: {e}")
-        st.stop()
+    tokenizer, model = load_model_and_tokenizer(model_name, DEVICE)
 
     # Function to generate text using the local model
     def generate_text(prompt, max_length=50):
