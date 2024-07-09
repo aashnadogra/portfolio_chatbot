@@ -1,6 +1,6 @@
 import streamlit as st
-from utils.constants import info
 import torch
+from utils.constants import info
 from utils.model_loader import load_model_and_tokenizer
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import json
@@ -65,9 +65,21 @@ with st.spinner("Initiating the AI assistant. Please hold..."):
 
     # Function to generate text using the local model
     def generate_text(prompt, max_length=50):
-        inputs = tokenizer(prompt, return_tensors="pt").to(DEVICE)
-        outputs = model.generate(inputs.input_ids, max_length=max_length)
-        return tokenizer.decode(outputs[0], skip_special_tokens=True)
+    # Tokenize the prompt
+    inputs = tokenizer(prompt, return_tensors="pt")
+
+    # Ensure input_ids length does not exceed model's maximum sequence length
+    max_input_length = tokenizer.model_max_length
+    if inputs.input_ids.size(1) > max_input_length:
+        inputs.input_ids = inputs.input_ids[:, :max_input_length]
+
+    # Move inputs to appropriate device
+    inputs = inputs.to(DEVICE)
+
+    # Generate text with the model
+    outputs = model.generate(inputs.input_ids, max_length=max_length)
+
+    return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
     # Load the bio.txt file
     with open("bio.txt", "r") as file:
@@ -78,23 +90,21 @@ def ask_bot(user_query):
     response = generate_text(prompt)
     return response
 
-# After the user enters a message, append that message to the message history
-if prompt := st.chat_input("Your question"): # Prompt for user input and save to chat history
-    st.session_state.messages.append({"role": "user", "content": prompt})
+# Handling user input and message display
+user_query = st.text_input("Your question")
+if st.button("Send"):
+    if user_query:
+        st.session_state.messages.append({"role": "user", "content": user_query})
+        response = ask_bot(user_query)
+        st.session_state.messages.append({"role": "assistant", "content": response})
 
-# Iterate through the message history and display each message
-for message in st.session_state.messages: 
-    with st.chat_message(message["role"]):
-        st.write(message["content"])
-
-# If the last message is not from the assistant, generate a new response
-if st.session_state.messages[-1]["role"] != "assistant":
-    with st.chat_message("assistant"):
-        with st.spinner("🤔 Thinking..."):
-            response = ask_bot(prompt)
-            st.write(response)
-            message = {"role": "assistant", "content": response}
-            st.session_state.messages.append(message) # Add response to message history
+# Displaying messages
+for message in st.session_state.messages:
+    with st.container():
+        if message["role"] == "user":
+            st.text_area("You:", value=message["content"], disabled=True)
+        elif message["role"] == "assistant":
+            st.text_area("Assistant:", value=message["content"], disabled=True)
 
 # Suggested questions
 questions = [
@@ -103,21 +113,14 @@ questions = [
     f'When can {subject} start to work?'
 ]
 
+# Function to handle button click
 def send_button_ques(question):
-    st.session_state.disabled = True
     response = ask_bot(question)
-    st.session_state.messages.append({"role": "user", "content": question}) # display the user's message first
-    st.session_state.messages.append({"role": "assistant", "content": response}) # display the AI message afterwards
-    
-if 'button_question' not in st.session_state:
-    st.session_state['button_question'] = ""
-if 'disabled' not in st.session_state:
-    st.session_state['disabled'] = False
-    
-if st.session_state['disabled'] == False: 
-    for n, msg in enumerate(st.session_state.messages):
-        # Render suggested question buttons
-        buttons = st.container()
-        if n == 0:
-            for q in questions:
-                button_ques = buttons.button(label=q, on_click=send_button_ques, args=[q], disabled=st.session_state.disabled)
+    st.session_state.messages.append({"role": "user", "content": question})
+    st.session_state.messages.append({"role": "assistant", "content": response})
+
+# Render suggested question buttons
+for q in questions:
+    if st.button(q, on_click=send_button_ques, args=(q,)):
+        pass  # Button will trigger `send_button_ques` function
+
