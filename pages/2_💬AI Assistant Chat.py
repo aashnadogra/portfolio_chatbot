@@ -66,20 +66,20 @@ with st.spinner("Initiating the AI assistant. Please hold..."):
     # Function to generate text using the local model
     def generate_text(prompt, max_length=50):
     # Tokenize the prompt
-    inputs = tokenizer(prompt, return_tensors="pt")
+        inputs = tokenizer(prompt, return_tensors="pt")
 
     # Ensure input_ids length does not exceed model's maximum sequence length
-    max_input_length = tokenizer.model_max_length
-    if inputs.input_ids.size(1) > max_input_length:
-        inputs.input_ids = inputs.input_ids[:, :max_input_length]
+        max_input_length = tokenizer.model_max_length
+        if inputs.input_ids.size(1) > max_input_length:
+            inputs.input_ids = inputs.input_ids[:, :max_input_length]
 
     # Move inputs to appropriate device
-    inputs = inputs.to(DEVICE)
+        inputs = inputs.to(DEVICE)
 
     # Generate text with the model
-    outputs = model.generate(inputs.input_ids, max_length=max_length)
+        outputs = model.generate(inputs.input_ids, max_length=max_length)
 
-    return tokenizer.decode(outputs[0], skip_special_tokens=True)
+        return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
     # Load the bio.txt file
     with open("bio.txt", "r") as file:
