@@ -69,12 +69,8 @@ with st.spinner("Initiating the AI assistant. Please hold..."):
         outputs = model.generate(inputs.input_ids, max_length=max_length)
         return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-    # Load the bio.txt file
-    with open("bio.txt", "r") as file:
-        bio = file.read()
-
 def ask_bot(user_query):
-    # Directly use the user's query as the prompt for the chatbot
+    # Generate a response based on user query
     response = generate_text(user_query)
     return response
 
@@ -82,7 +78,7 @@ def ask_bot(user_query):
 if prompt := st.text_input("Your question"): # Prompt for user input and save to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-# Display the chat history
+# Display the chat history with unique keys to avoid DuplicateWidgetID error
 for index, message in enumerate(st.session_state.messages):
     if message["role"] == "user":
         st.text_area(f"You_{index}: ", value=message["content"], disabled=True, key=f"user_{index}")
@@ -90,7 +86,7 @@ for index, message in enumerate(st.session_state.messages):
         st.text_area(f"Assistant_{index}: ", value=message["content"], disabled=True, key=f"assistant_{index}")
 
 # If the last message is not from the assistant, generate a new response
-if st.session_state.messages[-1]["role"] != "assistant":
+if st.session_state.messages[-1]["role"] != "assistant" and prompt:
     with st.spinner("🤔 Thinking..."):
         response = ask_bot(prompt)
         st.session_state.messages.append({"role": "assistant", "content": response})
