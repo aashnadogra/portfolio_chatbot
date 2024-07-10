@@ -4,6 +4,7 @@ import torch
 from utils.model_loader import load_model_and_tokenizer
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import json
+import random  # Import random module for generating varied responses
 
 st.title("💬 Chat with My AI Assistant")
 
@@ -89,6 +90,10 @@ for index, message in enumerate(st.session_state.messages):
 if st.session_state.messages[-1]["role"] != "assistant" and prompt:
     with st.spinner("🤔 Thinking..."):
         response = ask_bot(prompt)
+        # Check if the response is redundant (based on previous responses)
+        previous_responses = [msg["content"] for msg in st.session_state.messages if msg["role"] == "assistant"]
+        if response in previous_responses:
+            response = generate_text(prompt)  # Generate a new response if the current one is redundant
         st.session_state.messages.append({"role": "assistant", "content": response})
 
 # Suggested questions
