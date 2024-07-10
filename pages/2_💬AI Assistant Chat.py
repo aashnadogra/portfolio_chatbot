@@ -4,7 +4,6 @@ import torch
 from utils.model_loader import load_model_and_tokenizer
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import json
-import random  # Import random module for generating varied responses
 
 st.title("💬 Chat with My AI Assistant")
 
@@ -65,18 +64,22 @@ with st.spinner("Initiating the AI assistant. Please hold..."):
     tokenizer, model = load_model_and_tokenizer(model_name, DEVICE)
 
     # Function to generate text using the local model
-    def generate_text(prompt, max_length=50):
+    def generate_text(prompt, max_length=150):
         inputs = tokenizer(prompt, return_tensors="pt").to(DEVICE)
-        outputs = model.generate(inputs.input_ids, max_length=max_length)
+        outputs = model.generate(inputs.input_ids, max_length=max_length, num_return_sequences=1, no_repeat_ngram_size=2)
         return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
+# Load the bio.txt file
+with open("bio.txt", "r") as file:
+    bio = file.read()
+
 def ask_bot(user_query):
-    # Generate a response based on user query
-    response = generate_text(user_query)
-    return response
+    prompt = f"You are an AI assistant for {name}. Here is some information about {name}:\n\n{bio}\n\nQuestion: {user_query}\nAnswer:"
+    response = generate_text(prompt)
+    return response.strip()
 
 # After the user enters a message, append that message to the message history
-if prompt := st.text_input("Your question"): # Prompt for user input and save to chat history
+if prompt := st.chat_input("Your question"): # Prompt for user input and save to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
 
 # Display the chat history with unique keys to avoid DuplicateWidgetID error
